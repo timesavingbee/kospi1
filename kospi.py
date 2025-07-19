@@ -1,39 +1,33 @@
-import streamlit as st
-import yt_dlp
 import os
-import uuid
+import urllib.request
+import stat
 
-st.set_page_config(page_title="YouTube to MP3", page_icon="🎧")
-st.title("🎵 유튜브 → MP3 변환기")
+FFMPEG_DIR = "ffmpeg"
+FFMPEG_BIN = os.path.join(FFMPEG_DIR, "ffmpeg")
+FFPROBE_BIN = os.path.join(FFMPEG_DIR, "ffprobe")
 
-url = st.text_input("유튜브 URL 입력")
+def setup_ffmpeg():
+    if not os.path.exists(FFMPEG_DIR):
+        os.makedirs(FFMPEG_DIR)
 
-if st.button("MP3 다운로드") and url:
-    try:
-        temp_id = str(uuid.uuid4())
-        filename_template = f"{temp_id}.%(ext)s"
+    if not os.path.exists(FFMPEG_BIN):
+        print("🔽 ffmpeg 다운로드 중...")
+        urllib.request.urlretrieve(
+            "https://www.johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+            "ffmpeg.tar.xz"
+        )
 
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': filename_template,
-            'ffmpeg_location': './ffmpeg',  # 로컬 폴더 경로
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
+        import tarfile
+        with tarfile.open("ffmpeg.tar.xz") as tar:
+            members = [m for m in tar.getmembers() if "ffmpeg" in m.name or "ffprobe" in m.name]
+            for member in members:
+                name = os.path.basename(member.name)
+                tar.extract(member, FFMPEG_DIR)
+                os.rename(os.path.join(FFMPEG_DIR, member.name), os.path.join(FFMPEG_DIR, name))
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            title = info.get("title", "youtube_audio")
-            mp3_path = f"{temp_id}.mp3"
+        os.chmod(FFMPEG_BIN, stat.S_IRWXU)
+        os.chmod(FFPROBE_BIN, stat.S_IRWXU)
+        print("✅ ffmpeg 설치 완료")
 
-        with open(mp3_path, "rb") as f:
-            st.success(f"✅ {title} MP3 다운로드 준비 완료!")
-            st.download_button("📥 MP3 다운로드", f, file_name=f"{title}.mp3", mime="audio/mpeg")
-
-        os.remove(mp3_path)
-
-    except Exception as e:
-        st.error(f"❌ 오류 발생: {e}")
+# 설치 실행
+setup_ffmpeg()
