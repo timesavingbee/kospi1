@@ -48,14 +48,18 @@ if st.button("MP3 다운로드") and url:
 
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': filename_template,
+            'outtmpl': '%(title)s.%(ext)s',
             'ffmpeg_location': FFMPEG_DIR,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-        }
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
+        }        
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
