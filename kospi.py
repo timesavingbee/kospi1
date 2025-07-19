@@ -34,7 +34,11 @@ setup_ffmpeg()
 # Streamlit 앱 본문
 st.set_page_config(page_title="YouTube to MP3", page_icon="🎧")
 st.title("🎵 유튜브 → MP3 변환기")
-st.caption("잘생긴 아들 Ryan을 위해 만든 유튜브 -> MP3 변환기입니다.")
+# st.caption("잘생긴 아들 Ryan을 위해 만든 유튜브 -> MP3 변환기입니다.")
+st.markdown(
+    '<h3 style="color:#1f77b4;">잘생긴 아들 Ryan을 위해 만든 유튜브 -> MP3 변환기입니다.</h3>',
+    unsafe_allow_html=True
+)
 
 url = st.text_input("유튜브 URL 주소를 입력하고 MP3 다운로드 버튼을 누르시라!")
 
