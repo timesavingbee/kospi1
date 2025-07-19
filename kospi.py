@@ -61,7 +61,7 @@ if st.button("MP3 다운로드") and url:
             },
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['web']
+                    'player_client': ['web']  # 웹 클라이언트로 강제
                 }
             },
         }
